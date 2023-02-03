@@ -1,0 +1,12 @@
+name: ChestsPlusPlus
+version: '${project.version}'
+main: com.jamesdpeters.chestsplusplus.ChestsPlusPlus
+api-version: 1.19
+load: STARTUP
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:${kotlin.version}
+  - org.jetbrains.kotlin:kotlin-reflect:${kotlin.version}
+  - org.springframework:spring-context:${spring.version}
+  - javax.annotation:javax.annotation-api:${javax.annotation.version}
+  - com.googlecode.cqengine:cqengine:${cqengine.version}
+  - org.reflections:reflections:${reflections.version}
