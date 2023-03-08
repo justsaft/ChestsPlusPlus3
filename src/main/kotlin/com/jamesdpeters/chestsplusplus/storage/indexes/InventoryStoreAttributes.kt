@@ -13,4 +13,7 @@ object InventoryStoreAttributes {
     var uuid = object : SimpleAttribute<InventoryStore, UUID>() {
         override fun getValue(o: InventoryStore, queryOptions: QueryOptions): UUID = o.uuid
     }
+    var owner = object : SimpleAttribute<InventoryStore, UUID>() {
+        override fun getValue(o: InventoryStore, queryOptions: QueryOptions?): UUID = o.owner.uniqueId
+    }
 }

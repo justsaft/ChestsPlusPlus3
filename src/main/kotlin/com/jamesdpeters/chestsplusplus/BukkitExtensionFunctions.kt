@@ -2,17 +2,17 @@ package com.jamesdpeters.chestsplusplus
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.block.Barrel
-import org.bukkit.block.Block
-import org.bukkit.block.Chest
-import org.bukkit.block.Lidded
+import org.bukkit.Material
+import org.bukkit.block.*
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
 import org.bukkit.entity.Entity
+import org.bukkit.entity.Hanging
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 
 val Location.isChunkLoaded: Boolean
     get() {
@@ -22,7 +22,7 @@ val Location.isChunkLoaded: Boolean
     }
 
 val Block.isChestLink: Boolean
-    get() = state is Chest || state is Barrel;
+    get() = state is Chest || state is Barrel
 
 fun Location.containerAnimation(open: Boolean) {
     if (isChunkLoaded) {
@@ -69,3 +69,53 @@ val String.toUUID: UUID
 
 val BlockData?.directional: Directional?
     get() = if (this is Directional) this else null
+
+val Hanging.attachedFaceLocation: Location
+    get() {
+        return location.block.getRelative(attachedFace).location
+    }
+
+val Block?.container: Container?
+    get() {
+        val container = this?.state
+        return if (container is Container) container else null
+    }
+
+fun Location.addInventoryOrDrop(invToAdd: Inventory) {
+    this.block.container?.inventory
+        ?.add(invToAdd)
+        ?.drop(this)
+    ?: run {
+        // ? No container was here so drop items in the world directly
+        invToAdd.dropAll(this)
+    }
+}
+
+fun Location.removeInventoryOrDrop(invToRemoveInto: Inventory) {
+    this.block.container?.inventory?.let {
+        invToRemoveInto
+            .add(it) // ? Add into new inventory
+            .drop(this) // ? Drop overflow items
+    }
+}
+
+fun Inventory.add(inventory: Inventory): Map<Int, ItemStack> {
+    val items = inventory.contents.mapNotNull { it }.toTypedArray()
+    inventory.clear()
+    return addItem(*items)
+}
+
+fun Inventory.dropAll(location: Location) {
+    forEach {
+        it?.let { itemStack ->
+            location.world?.dropItem(location, itemStack)
+        }
+    }
+}
+
+fun Map<Int, ItemStack>.drop(location: Location) {
+    forEach {
+        if (it.value.amount > 0 && it.value.type != Material.AIR)
+            location.world?.dropItem(location, it.value)
+    }
+}

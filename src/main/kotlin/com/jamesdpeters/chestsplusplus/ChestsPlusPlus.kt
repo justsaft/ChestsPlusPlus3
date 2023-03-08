@@ -14,8 +14,6 @@ class ChestsPlusPlus : JavaPlugin() {
         fun <T> getBean(beanClass: Class<T>): T? = app?.getBean(beanClass)
 
         fun plugin() = getPlugin(ChestsPlusPlus::class.java)
-
-        fun logger() = plugin().logger
     }
 
     override fun onEnable() {
@@ -27,17 +25,20 @@ class ChestsPlusPlus : JavaPlugin() {
         app?.register(ApplicationConfig::class.java)
         app?.refresh()
 
+        Log.debug { "Debugging enabled!" }
+
         app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
-            logger.info("Loading service: $s")
+            Log.debug { "Loading service: $s" }
             persistableService.reload()
         }
+        Log.info { "Enabled ChestsPlusPlus" }
     }
 
     override fun onDisable() {
         // Plugin shutdown logic
 
         app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
-            logger.info("Persisting service: $s")
+            Log.debug { "Persisting service: $s" }
             persistableService.persist()
         }
 

@@ -1,10 +1,14 @@
 package com.jamesdpeters.chestsplusplus.storage.serializable
 
+import com.jamesdpeters.chestsplusplus.ChestsPlusPlus
 import com.jamesdpeters.chestsplusplus.mostCommonItem
 import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ArraySerializer
+import com.jamesdpeters.chestsplusplus.serialize.serializers.OfflinePlayerUUIDSerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.UUIDSerializer
+import com.jamesdpeters.chestsplusplus.services.data.LocationStorageService
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
@@ -27,6 +31,10 @@ class InventoryStore : SerializableObject, InventoryHolder {
     lateinit var name: String
         private set
 
+    @ConfigSerialize(OfflinePlayerUUIDSerializer::class)
+    lateinit var owner: OfflinePlayer
+        private set
+
     @ConfigSerialize(ArraySerializer::class)
     private var inventoryItems: Array<ItemStack?>? = null
 
@@ -42,9 +50,10 @@ class InventoryStore : SerializableObject, InventoryHolder {
         init()
     }
 
-    constructor(name: String) {
+    constructor(player: OfflinePlayer, name: String) {
         this.uuid = UUID.randomUUID()
         this.name = name
+        this.owner = player
         init()
     }
 
@@ -69,6 +78,21 @@ class InventoryStore : SerializableObject, InventoryHolder {
             itemMeta = itemMeta?.apply {
                 setDisplayName(name)
             }
+        }
+    }
+
+    private var canUpdateLocations: Boolean = true
+
+    fun updateLocations(locationStorageService: LocationStorageService) {
+        if (canUpdateLocations) {
+            canUpdateLocations = false
+            Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), {
+                calculateMostCommonItem()
+                locationStorageService.getLocations(uuid).forEach {
+                    it.updateItemFrame(mostCommonItem)
+                }
+                canUpdateLocations = true
+            }, 1)
         }
     }
 

@@ -1,27 +1,26 @@
 package com.jamesdpeters.chestsplusplus.serialize
 
-import com.jamesdpeters.chestsplusplus.ChestsPlusPlus
+import com.jamesdpeters.chestsplusplus.Log
 import com.jamesdpeters.chestsplusplus.serialize.serializers.DefaultSerializer
 import com.jamesdpeters.chestsplusplus.storage.serializable.SerializableObject
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.DependsOn
 import org.springframework.core.GenericTypeResolver
 import org.springframework.core.ResolvableType
 import org.springframework.stereotype.Component
 import java.lang.reflect.Field
 import java.util.*
-import kotlin.reflect.jvm.kotlinProperty
 
+@DependsOn("config")
 @Component
 class SerializeFieldCache(private val context: ApplicationContext) {
-
-    private val log = ChestsPlusPlus.logger()
 
     private val cache = HashMap<Class<out SerializableObject?>, Map<String, Field>>()
     private var fieldSerializers = HashMap<Field, CppSerializer<*, *>>()
 
     init {
-        log.info {"Initialising SerializeFieldCache" }
+        Log.debug { "Initialising SerializeFieldCache" }
 
         SerializableObject::class.sealedSubclasses.forEach {
             @Suppress("UNCHECKED_CAST")
@@ -53,7 +52,7 @@ class SerializeFieldCache(private val context: ApplicationContext) {
         }
 
         cache[clazz] = map
-        log.info {"Registered class ${clazz.canonicalName} for serialization" }
+        Log.debug {"Registered class ${clazz.canonicalName} for serialization" }
     }
 
     fun serialize(obj: SerializableObject): MutableMap<String?, Any?> {
@@ -62,7 +61,7 @@ class SerializeFieldCache(private val context: ApplicationContext) {
         map?.forEach { (name: String, field: Field) ->
             try {
                 var value = field[obj]
-                val serializer = fieldSerializers[field] as CppSerializer<Any?, Any?>?
+                @Suppress("UNCHECKED_CAST") val serializer = fieldSerializers[field] as CppSerializer<Any?, Any?>?
                 if (serializer != null) {
                     value = serializer.serialize(value)
                 }

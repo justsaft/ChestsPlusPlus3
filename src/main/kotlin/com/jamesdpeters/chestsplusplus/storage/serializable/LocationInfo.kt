@@ -3,9 +3,10 @@ package com.jamesdpeters.chestsplusplus.storage.serializable
 import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ItemFrameSerializer
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.entity.ItemFrame
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 
 class LocationInfo : SerializableObject {
 
@@ -15,6 +16,7 @@ class LocationInfo : SerializableObject {
 
     @ConfigSerialize
     var inventoryUUID: UUID? = null
+        private set
 
     @ConfigSerialize(ItemFrameSerializer::class)
     var itemFrame: ItemFrame? = null
@@ -29,10 +31,13 @@ class LocationInfo : SerializableObject {
     }
 
     fun updateItemFrame(itemStack: ItemStack?) {
-        itemFrame?.setItem(itemStack)
+        if (itemFrame != null) {
+            itemFrame!!.setItem(itemStack)
+            itemFrame?.isVisible = (itemStack == null || itemStack.type == Material.AIR)
+        }
     }
 
-    fun reset() {
+    fun remove() {
         inventoryUUID = null
         itemFrame?.remove()
     }
