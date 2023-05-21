@@ -30,22 +30,24 @@ class ChestsPlusPlus : JavaPlugin() {
         // Plugin startup logic
         val compoundClassLoader = CompoundClassLoader(classLoader, Thread.currentThread().contextClassLoader)
 
-        app = AnnotationConfigApplicationContext()
-        app?.classLoader = compoundClassLoader
-        app?.register(ApplicationConfig::class.java)
-        app?.refresh()
+        scheduleTask(1) {
+            app = AnnotationConfigApplicationContext()
+            app?.classLoader = compoundClassLoader
+            app?.register(ApplicationConfig::class.java)
+            app?.refresh()
 
-        Log.debug { "Debugging enabled!" }
+            Log.debug { "Debugging enabled!" }
 
-        app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
-            Log.debug { "Loading service: $s" }
-            persistableService.reload()
+            app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
+                Log.debug { "Loading service: $s" }
+                persistableService.reload()
+            }
+
+            itemTags = server.getTags(Tag.REGISTRY_ITEMS, Material::class.java)
+            blockTags = server.getTags(Tag.REGISTRY_BLOCKS, Material::class.java)
+
+            Log.info { "Enabled ChestsPlusPlus" }
         }
-
-        itemTags = server.getTags(Tag.REGISTRY_ITEMS, Material::class.java)
-        blockTags = server.getTags(Tag.REGISTRY_BLOCKS, Material::class.java)
-
-        Log.info { "Enabled ChestsPlusPlus" }
     }
 
     override fun onDisable() {

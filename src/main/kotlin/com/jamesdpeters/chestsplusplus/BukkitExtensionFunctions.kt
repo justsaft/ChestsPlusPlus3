@@ -15,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import java.util.*
+import kotlin.math.min
 
 val Location.isChunkLoaded: Boolean
     get() {
@@ -116,6 +117,20 @@ fun Inventory.dropAll(location: Location) {
             location.world?.dropItem(location, itemStack)
         }
     }
+}
+
+fun Inventory.moveTo(to: Inventory, itemStack: ItemStack, amount: Int): Boolean {
+    val toRemove = itemStack.clone()
+    toRemove.amount = min(itemStack.amount, amount)
+    itemStack.amount -= toRemove.amount
+
+    to.addItem(toRemove).values.forEach { leftOver ->
+        addItem(leftOver)
+        if (toRemove == leftOver)
+            return false
+    }
+
+    return true
 }
 
 fun Map<Int, ItemStack>.drop(location: Location) {
