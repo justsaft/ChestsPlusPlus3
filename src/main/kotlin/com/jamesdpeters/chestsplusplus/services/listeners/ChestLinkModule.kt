@@ -1,10 +1,11 @@
 package com.jamesdpeters.chestsplusplus.services.listeners
 
 import com.jamesdpeters.chestsplusplus.*
+import com.jamesdpeters.chestsplusplus.services.config.ConfigOptions
+import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
 import com.jamesdpeters.chestsplusplus.services.data.InventoryStorageService
-import com.jamesdpeters.chestsplusplus.services.data.LocationStorageService
 import com.jamesdpeters.chestsplusplus.services.logic.ChestLinkService
-import com.jamesdpeters.chestsplusplus.spigot.event.LocationInfoLoadEvent
+import com.jamesdpeters.chestsplusplus.spigot.event.ChestLinkLocationLoadEvent
 import com.jamesdpeters.chestsplusplus.storage.serializable.InventoryStore.Companion.inventoryStore
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -31,12 +32,20 @@ import org.bukkit.util.Vector
 import org.springframework.stereotype.Service
 
 @Service
-class StorageListener(
+class ChestLinkModule(
     private val chestLinkService: ChestLinkService,
     private val inventoryStorageService: InventoryStorageService,
-    private val locationStorageService: LocationStorageService,
-    private val itemFrameKey: NamespacedKey
+    private val chunkStorageService: ChunkStorageService,
+    private val itemFrameKey: NamespacedKey,
+    private val configOptions: ConfigOptions
 ) : SpringBukkitListener() {
+
+    override fun onEnable() {
+        Log.info { "ChestLink Module enabled." }
+    }
+
+    override val isEnabled: Boolean
+        get() = configOptions.isChestLinkEnabled()
 
     // ? Chest Link Inventory Events
 
@@ -60,7 +69,7 @@ class StorageListener(
         event.inventory.holder.inventoryStore?.let { invStore ->
             event.inventory.viewers.remove(event.player)
             if (event.inventory.viewers.size == 0) {
-                locationStorageService.getLocations(invStore.uuid).forEach {
+                chunkStorageService.getChestLinkLocations(invStore.uuid).forEach {
                     it.location?.containerAnimation(false)
                 }
             }
@@ -92,28 +101,28 @@ class StorageListener(
     }
 
     @EventHandler
-    fun storageLoaded(event: LocationInfoLoadEvent) {
-        Log.debug { "Loaded location: ${event.locationInfo.location}" }
-        event.locationInfo.location?.also { location ->
-            if (event.locationInfo.inventoryUUID == null)
+    fun storageLoaded(event: ChestLinkLocationLoadEvent) {
+        Log.debug { "Loaded location: ${event.chestLinkLocation.location}" }
+        event.chestLinkLocation.location?.also { location ->
+            if (event.chestLinkLocation.inventoryUUID == null)
                 return
 
             location.block.blockData.directional?.also { chest ->
                 val relativeBlock = location.block.getRelative(chest.facing)
 
                 val itemFrame = relativeBlock.location.world?.spawn(relativeBlock.location, ItemFrame::class.java)
-                itemFrame?.persistentDataContainer?.set(itemFrameKey, PersistentDataType.STRING, event.locationInfo.inventoryUUID.toString())
+                itemFrame?.persistentDataContainer?.set(itemFrameKey, PersistentDataType.STRING, event.chestLinkLocation.inventoryUUID.toString())
                 itemFrame?.setFacingDirection(chest.facing)
                 itemFrame?.isVisible = false
 
-                event.locationInfo.itemFrame = itemFrame
+                event.chestLinkLocation.itemFrame = itemFrame
 
-                inventoryStorageService.inventoryStore(event.locationInfo.inventoryUUID!!)?.apply {
+                inventoryStorageService.inventoryStore(event.chestLinkLocation.inventoryUUID!!)?.apply {
                     calculateMostCommonItem()
-                    event.locationInfo.updateItemFrame(mostCommonItem)
+                    event.chestLinkLocation.updateItemFrame(mostCommonItem)
                 }
 
-                locationStorageService.persistChunk(location.chunk)
+                chunkStorageService.persistChunk(location.chunk)
                 Log.debug { "Spawned item frame: $itemFrame" }
             }
         }
@@ -135,7 +144,7 @@ class StorageListener(
 
 
     private fun itemFrameUpdate(inventory: Inventory) {
-        inventory.holder.inventoryStore?.updateLocations(locationStorageService)
+        inventory.holder.inventoryStore?.updateLocations(chunkStorageService)
     }
 
     // ? ChestLink ItemFrame events

@@ -2,56 +2,61 @@ package com.jamesdpeters.chestsplusplus.services.config
 
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.Plugin
-import org.springframework.context.annotation.Configuration
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-@Configuration
 open class Config(val plugin: Plugin, configValues: List<AbstractValue<out Any>>) {
 
-    private val values = mutableMapOf<String?, MutableList<AbstractValue<out Any>>>()
-
+    private val values: MutableMap<String?, MutableList<AbstractValue<out Any>>> = mutableMapOf()
     private var configuration: FileConfiguration = plugin.config
 
     init {
         configValues.forEach { it.init(this) }
 
-        // ? Add default values
+        configuration.options().setHeader(listOf(
+            "***********************************************",
+            "*********** ChestsPlusPlus Config *************",
+            "***********************************************",
+            ))
+        configuration.options().parseComments(true)
+
         values.forEach { (configSection, values) ->
             if (configSection != null) {
-                val section = configuration.getConfigurationSection(configSection) ?: configuration.createSection(configSection)
+                val section = configuration.getConfigurationSection(configSection)
+                    ?: configuration.createSection(configSection)
+                values.forEach { it.set(section.get(it.path)) }
+            } else {
+                values.forEach { it.set(configuration.get(it.path)) }
+            }
+        }
+
+        setCommentsAndDefaults()
+        plugin.saveConfig()
+    }
+
+    private fun setCommentsAndDefaults() {
+        values.forEach { (configSection, values) ->
+            if (configSection != null) {
+                val section = configuration.getConfigurationSection(configSection)
+                    ?: configuration.createSection(configSection)
                 values.forEach {
-                    section.addDefault(it.path, it.defaultValue)
+                    if (section.getConfigurationSection(it.path) == null) {
+                        section.set(it.path, it.invoke())
+                    }
                     section.setComments(it.path, it.comments)
                 }
             } else {
                 values.forEach {
-                    configuration.addDefault(it.path, it.defaultValue)
+                    if (configuration.getConfigurationSection(it.path) == null) {
+                        configuration.set(it.path, it.invoke())
+                    }
                     configuration.setComments(it.path, it.comments)
                 }
             }
         }
-
         configuration.options().copyDefaults(true)
-
-        // Save config and default values
-        plugin.saveConfig()
-
-        // Read config in and set values
-        configuration = plugin.config
-        values.forEach { (configSection, values) ->
-            if (configSection != null) {
-                val section = configuration.getConfigurationSection(configSection) ?: configuration.createSection(configSection)
-                values.forEach { value ->
-                    value.set(section.get(value.path))
-                }
-            } else {
-                values.forEach {
-                    it.set(configuration.get(it.path))
-                }
-            }
-        }
     }
+
 
     abstract class AbstractValue<T : Any>(private val configurationSection: String?, val path: String, val defaultValue: T, val comments: List<String> = listOf()) {
         protected var value: T? = defaultValue
@@ -78,11 +83,12 @@ open class Config(val plugin: Plugin, configValues: List<AbstractValue<out Any>>
         constructor(path: String, type: KClass<T>, defaultValue: T, comments: List<String> = listOf()) : this(null, path, type, defaultValue, comments)
 
         override fun set(value: Any?) {
-            this.value = if (type.isInstance(value)) {
-                type.cast(value)
-            } else {
-                defaultValue
-            }
+            this.value =
+                if (type.isInstance(value)) {
+                    type.cast(value)
+                } else {
+                    defaultValue
+                }
         }
     }
 

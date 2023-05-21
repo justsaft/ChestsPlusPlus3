@@ -16,7 +16,7 @@ import java.util.*
 
 @Service
 class InventoryStorageService(
-    private val locationStorageService: LocationStorageService
+    private val chunkStorageService: ChunkStorageService
 ) : PersistableService, YamlFileStorage<List<InventoryStore>>() {
 
     private val inventoryStores = ConcurrentIndexedCollection<InventoryStore>()
@@ -61,7 +61,7 @@ class InventoryStorageService(
     }
 
     fun inventoryStoreAtLocation(location: Location): InventoryStore? {
-        return locationStorageService.getLocation(location)?.let {
+        return chunkStorageService.getChestLinkLocation(location)?.let {
             it.inventoryUUID?.let { uuid ->
                 inventoryStore(uuid)
             }

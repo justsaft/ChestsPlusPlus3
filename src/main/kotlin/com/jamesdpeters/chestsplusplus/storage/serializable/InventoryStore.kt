@@ -6,7 +6,7 @@ import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ArraySerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.OfflinePlayerUUIDSerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.UUIDSerializer
-import com.jamesdpeters.chestsplusplus.services.data.LocationStorageService
+import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.inventory.Inventory
@@ -83,12 +83,12 @@ class InventoryStore : SerializableObject, InventoryHolder {
 
     private var canUpdateLocations: Boolean = true
 
-    fun updateLocations(locationStorageService: LocationStorageService) {
+    fun updateLocations(chunkStorageService: ChunkStorageService) {
         if (canUpdateLocations) {
             canUpdateLocations = false
             Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), {
                 calculateMostCommonItem()
-                locationStorageService.getLocations(uuid).forEach {
+                chunkStorageService.getChestLinkLocations(uuid).forEach {
                     it.updateItemFrame(mostCommonItem)
                 }
                 canUpdateLocations = true

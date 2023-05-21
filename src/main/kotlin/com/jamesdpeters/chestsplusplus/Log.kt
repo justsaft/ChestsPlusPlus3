@@ -9,7 +9,7 @@ object Log {
     }
 
     fun debug(string: () -> String) {
-        if (ConfigOptions.instance!!.isDebug())
+        if (ConfigOptions.instance.isDebug())
             println("[ChestsPlusPlus] [DEBUG] ${string()}")
     }
 

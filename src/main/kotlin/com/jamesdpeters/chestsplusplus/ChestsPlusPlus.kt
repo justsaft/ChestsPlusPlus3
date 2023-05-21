@@ -2,6 +2,9 @@ package com.jamesdpeters.chestsplusplus
 
 import com.jamesdpeters.chestsplusplus.services.data.PersistableService
 import com.jamesdpeters.chestsplusplus.util.CompoundClassLoader
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.Tag
 import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
@@ -14,6 +17,13 @@ class ChestsPlusPlus : JavaPlugin() {
         fun <T> getBean(beanClass: Class<T>): T? = app?.getBean(beanClass)
 
         fun plugin() = getPlugin(ChestsPlusPlus::class.java)
+
+        fun scheduleTask(delay: Long, task: () -> Unit) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), task, delay)
+        }
+
+        var itemTags: Iterable<Tag<Material>>? = null
+        var blockTags: Iterable<Tag<Material>>? = null
     }
 
     override fun onEnable() {
@@ -31,6 +41,10 @@ class ChestsPlusPlus : JavaPlugin() {
             Log.debug { "Loading service: $s" }
             persistableService.reload()
         }
+
+        itemTags = server.getTags(Tag.REGISTRY_ITEMS, Material::class.java)
+        blockTags = server.getTags(Tag.REGISTRY_BLOCKS, Material::class.java)
+
         Log.info { "Enabled ChestsPlusPlus" }
     }
 

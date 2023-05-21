@@ -3,9 +3,11 @@ package com.jamesdpeters.chestsplusplus
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.Tag
 import org.bukkit.block.*
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
+import org.bukkit.block.data.type.Hopper
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Hanging
 import org.bukkit.entity.ItemFrame
@@ -70,6 +72,9 @@ val String.toUUID: UUID
 val BlockData?.directional: Directional?
     get() = if (this is Directional) this else null
 
+val BlockData?.hopper: Hopper?
+    get() = if (this is Hopper) this else null
+
 val Hanging.attachedFaceLocation: Location
     get() {
         return location.block.getRelative(attachedFace).location
@@ -118,4 +123,15 @@ fun Map<Int, ItemStack>.drop(location: Location) {
         if (it.value.amount > 0 && it.value.type != Material.AIR)
             location.world?.dropItem(location, it.value)
     }
+}
+
+fun Tag<Material>.areItemsTagged(vararg itemStack: ItemStack): Boolean {
+    return itemStack.all {
+        this.isTagged(it.type)
+    }
+}
+
+fun ItemStack.isSimilarTag(itemStack: ItemStack): Boolean {
+    return ChestsPlusPlus.blockTags!!.any { it.areItemsTagged(itemStack, this) }
+            || ChestsPlusPlus.itemTags!!.any { it.areItemsTagged(itemStack, this) }
 }
