@@ -52,10 +52,11 @@ class ChestsPlusPlus : JavaPlugin() {
 
     override fun onDisable() {
         // Plugin shutdown logic
-
-        app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
-            Log.debug { "Persisting service: $s" }
-            persistableService.persist()
+        if (app?.isActive == true) {
+            app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
+                Log.debug { "Persisting service: $s" }
+                persistableService.persist()
+            }
         }
 
         HandlerList.unregisterAll(this)

@@ -1,5 +1,6 @@
 package com.jamesdpeters.chestsplusplus.services.config
 
+import com.jamesdpeters.chestsplusplus.Log
 import org.springframework.stereotype.Component
 
 @Component
@@ -31,6 +32,8 @@ class ServerType {
             // If reached here class exists
             type = Type.PAPER
         } catch (ignored: Exception) {}
+
+        Log.debug { "Found server type: $type" }
     }
 
 }
