@@ -3,8 +3,8 @@ package com.jamesdpeters.chestsplusplus.services.logic
 import com.jamesdpeters.chestsplusplus.addInventoryOrDrop
 import com.jamesdpeters.chestsplusplus.containerAnimation
 import com.jamesdpeters.chestsplusplus.removeInventoryOrDrop
-import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
-import com.jamesdpeters.chestsplusplus.services.data.InventoryStorageService
+import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.data.inventory.InventoryStorageService
 import com.jamesdpeters.chestsplusplus.storage.serializable.InventoryStore
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -19,7 +19,7 @@ class ChestLinkService(
 
     fun openChestInventory(player: Player, inventoryStore: InventoryStore) {
         player.openInventory(inventoryStore.inventory)
-        chunkStorageService.getChestLinkLocations(inventoryStore.uuid).forEach { it.location?.containerAnimation(true) }
+        chunkStorageService.getChestLinkLocations(inventoryStore.uuid)?.forEach { it.location?.containerAnimation(true) }
     }
 
     fun addChestLink(player: Player, location: Location, name: String) {
@@ -33,7 +33,7 @@ class ChestLinkService(
     fun removeChestLink(location: Location) {
         chunkStorageService.removeChestLinkLocation(location)?.apply {
             inventoryUUID?.let { uuid ->
-                if (chunkStorageService.getChestLinkLocations(uuid).isEmpty()) {
+                if (chunkStorageService.getChestLinkLocations(uuid)?.isEmpty() == true) {
                     inventoryStorageService.removeInventoryStore(uuid)?.apply {
                         location.addInventoryOrDrop(inventory)
                     }

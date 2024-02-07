@@ -2,7 +2,7 @@ package com.jamesdpeters.chestsplusplus.services.logic
 
 import com.jamesdpeters.chestsplusplus.attachedFaceLocation
 import com.jamesdpeters.chestsplusplus.hopper
-import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
 import com.jamesdpeters.chestsplusplus.storage.serializable.HopperFilter
 import org.bukkit.Location
 import org.bukkit.entity.ItemFrame
@@ -28,7 +28,9 @@ class HopperFilterService(
         itemFrame.attachedFaceLocation.block.let { block ->
             block.blockData.hopper?.let {
                 chunkStorageService.getHopperFilterLocation(block.location).let {
-                    it.filters!!.remove(HopperFilter(itemFrame))
+                    it.filters!!.removeIf { filter ->
+                        filter.itemFrame == null || filter.itemFrame!!.isDead || filter.itemFrame == itemFrame
+                    }
                 }
             }
         }

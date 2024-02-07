@@ -1,5 +1,6 @@
 package com.jamesdpeters.chestsplusplus.storage.serializable
 
+import com.jamesdpeters.chestsplusplus.findSimilarTag
 import com.jamesdpeters.chestsplusplus.isSimilarTag
 import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ItemFrameSerializer
@@ -30,7 +31,7 @@ class HopperFilterLocation : SerializableObject {
 
     private fun init() {
         if (filters == null) filters = mutableListOf()
-        filters?.removeIf { it.itemFrame == null }
+        filters?.removeIf { it.itemFrame == null || it.itemFrame!!.isDead }
     }
 
     fun isInFilter(itemStack: ItemStack): Boolean {
@@ -60,9 +61,6 @@ class HopperFilter : SerializableObject {
     var itemFrame: ItemFrame? = null
         private set
 
-//    var cachedItemStack: ItemStack? = null
-//    var cachedRotation: Rotation? = null
-//    var cachePredicates: HashMap<Int, Type> = hashMapOf()
 
     @Suppress("unused")
     constructor(map: MutableMap<String?, Any?>) : super(map) {
@@ -73,17 +71,29 @@ class HopperFilter : SerializableObject {
         this.itemFrame = itemFrame
     }
 
-    private fun filterByItemMeta() : Boolean {
+    fun filterByItemMeta() : Boolean {
         return itemFrame != null && (itemFrame!!.rotation == Rotation.FLIPPED || itemFrame!!.rotation == Rotation.COUNTER_CLOCKWISE)
     }
 
-    private fun dontAllowThisItem() : Boolean {
+    fun dontAllowThisItem() : Boolean {
         return itemFrame != null && (itemFrame!!.rotation == Rotation.CLOCKWISE || itemFrame!!.rotation == Rotation.COUNTER_CLOCKWISE)
+    }
+
+    fun ignoreFilter() : Boolean {
+        return itemFrame != null && (
+                        itemFrame!!.rotation == Rotation.COUNTER_CLOCKWISE_45
+                        || itemFrame!!.rotation == Rotation.CLOCKWISE_135
+                        || itemFrame!!.rotation == Rotation.CLOCKWISE_45
+                        || itemFrame!!.rotation == Rotation.FLIPPED_45
+                )
     }
 
     fun isAcceptFilter(): Boolean = !dontAllowThisItem()
 
     fun getPredicate(itemStack: ItemStack): Type {
+        if (itemFrame!!.item.type.isAir || ignoreFilter())
+            return Type.ACCEPT
+
         val dontAllowThisItem = dontAllowThisItem()
         val filterByItemMeta = filterByItemMeta()
 
@@ -109,7 +119,10 @@ class HopperFilter : SerializableObject {
         if (itemFrame!!.item.isSimilar(itemStack)) return true
         if (filterByItemMeta()) {
             return if (itemFrame!!.item.type == itemStack.type) true
-            else itemFrame!!.item.isSimilarTag(itemStack)
+            else {
+                val similarTag = itemFrame!!.item.findSimilarTag(itemStack)
+                return similarTag != null
+            }
         }
         return false
     }

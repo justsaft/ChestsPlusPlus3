@@ -2,8 +2,8 @@ package com.jamesdpeters.chestsplusplus.services.listeners
 
 import com.jamesdpeters.chestsplusplus.*
 import com.jamesdpeters.chestsplusplus.services.config.ConfigOptions
-import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
-import com.jamesdpeters.chestsplusplus.services.data.InventoryStorageService
+import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.data.inventory.InventoryStorageService
 import com.jamesdpeters.chestsplusplus.services.logic.ChestLinkService
 import com.jamesdpeters.chestsplusplus.spigot.event.ChestLinkLocationLoadEvent
 import com.jamesdpeters.chestsplusplus.storage.serializable.InventoryStore.Companion.inventoryStore
@@ -69,7 +69,7 @@ class ChestLinkModule(
         event.inventory.holder.inventoryStore?.let { invStore ->
             event.inventory.viewers.remove(event.player)
             if (event.inventory.viewers.size == 0) {
-                chunkStorageService.getChestLinkLocations(invStore.uuid).forEach {
+                chunkStorageService.getChestLinkLocations(invStore.uuid)?.forEach {
                     it.location?.containerAnimation(false)
                 }
             }

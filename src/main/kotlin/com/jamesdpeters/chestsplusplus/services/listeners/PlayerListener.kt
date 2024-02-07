@@ -1,7 +1,7 @@
 package com.jamesdpeters.chestsplusplus.services.listeners
 
 import com.jamesdpeters.chestsplusplus.Log
-import com.jamesdpeters.chestsplusplus.services.data.InventoryStorageService
+import com.jamesdpeters.chestsplusplus.services.data.inventory.InventoryStorageService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.world.WorldSaveEvent
@@ -16,7 +16,7 @@ class PlayerListener(
     fun PlayerLoginEvent.playerLogin() {
         Log.debug {
             val stores = inventoryStorageService.inventories(player)
-            "${player.name} logged in. Found ${stores.size} storages"
+            "${player.name} logged in. Found ${stores?.size ?: 0} storages"
         }
     }
 

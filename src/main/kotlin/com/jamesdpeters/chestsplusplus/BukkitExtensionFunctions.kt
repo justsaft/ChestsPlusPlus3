@@ -147,6 +147,9 @@ fun Tag<Material>.areItemsTagged(vararg itemStack: ItemStack): Boolean {
 }
 
 fun ItemStack.isSimilarTag(itemStack: ItemStack): Boolean {
-    return ChestsPlusPlus.blockTags!!.any { it.areItemsTagged(itemStack, this) }
-            || ChestsPlusPlus.itemTags!!.any { it.areItemsTagged(itemStack, this) }
+    return ChestsPlusPlus.itemTags!!.any { it.areItemsTagged(itemStack, this) }
+}
+
+fun ItemStack.findSimilarTag(itemStack: ItemStack): Tag<Material>? {
+    return ChestsPlusPlus.itemTags?.find { it.areItemsTagged(itemStack, this) }
 }

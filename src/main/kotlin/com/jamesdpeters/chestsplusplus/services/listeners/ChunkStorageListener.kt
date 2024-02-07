@@ -1,6 +1,6 @@
 package com.jamesdpeters.chestsplusplus.services.listeners
 
-import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.ChunkUnloadEvent

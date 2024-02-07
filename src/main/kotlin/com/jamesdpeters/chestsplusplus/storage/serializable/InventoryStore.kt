@@ -6,7 +6,7 @@ import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ArraySerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.OfflinePlayerUUIDSerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.UUIDSerializer
-import com.jamesdpeters.chestsplusplus.services.data.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.inventory.Inventory
@@ -88,7 +88,7 @@ class InventoryStore : SerializableObject, InventoryHolder {
             canUpdateLocations = false
             Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), {
                 calculateMostCommonItem()
-                chunkStorageService.getChestLinkLocations(uuid).forEach {
+                chunkStorageService.getChestLinkLocations(uuid)?.forEach {
                     it.updateItemFrame(mostCommonItem)
                 }
                 canUpdateLocations = true
