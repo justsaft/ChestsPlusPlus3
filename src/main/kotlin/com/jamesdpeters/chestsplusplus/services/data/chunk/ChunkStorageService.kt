@@ -84,12 +84,17 @@ class ChunkStorageService : PersistableService {
         return chestLinkStorage.get(location)
     }
 
-    fun createChestLinkLocation(location: Location, inventoryUUID: UUID? = null): ChestLinkLocation {
+    fun createChestLinkLocation(location: Location, inventoryUUID: UUID? = null): Boolean {
+        getChestLinkLocation(location).let {
+            if (it != null)
+                return false
+        }
+
         val chestLinkLocation = ChestLinkLocation(location, inventoryUUID)
         chestLinkStorage.add(chestLinkLocation)
         val event = ChestLinkLocationLoadEvent(chestLinkLocation)
         Bukkit.getServer().pluginManager.callEvent(event)
-        return chestLinkLocation
+        return true
     }
 
     fun removeChestLinkLocation(location: Location): ChestLinkLocation? {

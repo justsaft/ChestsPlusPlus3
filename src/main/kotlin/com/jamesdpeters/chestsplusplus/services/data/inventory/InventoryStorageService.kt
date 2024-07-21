@@ -2,6 +2,7 @@ package com.jamesdpeters.chestsplusplus.services.data.inventory
 
 import com.jamesdpeters.chestsplusplus.services.data.PersistableService
 import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
+import com.jamesdpeters.chestsplusplus.services.logic.PartyService
 import com.jamesdpeters.chestsplusplus.storage.serializable.InventoryStore
 import com.jamesdpeters.chestsplusplus.storage.yaml.YamlFileStorage
 import org.bukkit.Location
@@ -10,8 +11,9 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class InventoryStorageService(
-    private val chunkStorageService: ChunkStorageService
+open class InventoryStorageService(
+    private val chunkStorageService: ChunkStorageService,
+    private val partyService: PartyService?
 ) : PersistableService, YamlFileStorage<List<InventoryStore>>() {
 
     private val inventoryStorage = InventoryStorageMap()
@@ -37,23 +39,23 @@ class InventoryStorageService(
 
     /** Public functions */
 
-    fun inventories(player: OfflinePlayer): Collection<InventoryStore>? {
+    fun inventories(player: OfflinePlayer): List<InventoryStore> {
         return inventoryStorage.getAllByOwner(player.uniqueId)
     }
 
-    fun inventoryStore(uuid: UUID): InventoryStore? {
+    fun getInventoryStore(uuid: UUID): InventoryStore? {
         return inventoryStorage[uuid]
     }
 
     fun inventoryStoreAtLocation(location: Location): InventoryStore? {
         return chunkStorageService.getChestLinkLocation(location)?.let {
             it.inventoryUUID?.let { uuid ->
-                inventoryStore(uuid)
+                getInventoryStore(uuid)
             }
         }
     }
 
-    fun inventoryStore(player: OfflinePlayer, name: String): InventoryStore? {
+    fun getInventoryStore(player: OfflinePlayer, name: String): InventoryStore? {
         return inventoryStorage.getByOwnerAndName(player.uniqueId, name)
     }
 
@@ -64,11 +66,22 @@ class InventoryStorageService(
     }
 
     fun getInventoryStoreOrCreate(player: OfflinePlayer, name: String): InventoryStore {
-        return inventoryStore(player, name) ?: createInventory(player, name)
+        return getInventoryStore(player, name) ?: createInventory(player, name)
     }
 
     fun removeInventoryStore(uuid: UUID): InventoryStore? {
         return inventoryStorage.remove(uuid)
+    }
+
+    fun getPartyInventories(player: OfflinePlayer) : List<InventoryStore> {
+        val partyInventories = mutableListOf<InventoryStore>()
+        partyInventories.addAll(inventories(player))
+        partyService?.partiesAPI?.getPartyOfPlayer(player.uniqueId)?.let {
+            it.members
+                .filter { uuid -> player.uniqueId != uuid }
+                .forEach { uuid -> partyInventories.addAll(inventoryStorage.getAllByOwner(uuid)) }
+        }
+        return partyInventories
     }
 
 }

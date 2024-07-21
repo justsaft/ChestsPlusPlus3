@@ -1,7 +1,6 @@
 package com.jamesdpeters.chestsplusplus.storage.serializable
 
 import com.jamesdpeters.chestsplusplus.findSimilarTag
-import com.jamesdpeters.chestsplusplus.isSimilarTag
 import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ItemFrameSerializer
 import org.bukkit.Location

@@ -4,7 +4,6 @@ import com.jamesdpeters.chestsplusplus.storage.serializable.ChestLinkLocation
 import org.bukkit.Chunk
 import org.bukkit.Location
 import java.util.*
-import kotlin.collections.HashMap
 
 class ChestLinkStorageMap : HashMap<Chunk, MutableList<ChestLinkLocation>>() {
 

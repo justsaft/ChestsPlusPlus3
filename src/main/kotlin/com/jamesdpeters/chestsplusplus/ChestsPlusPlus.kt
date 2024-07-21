@@ -2,6 +2,7 @@ package com.jamesdpeters.chestsplusplus
 
 import com.jamesdpeters.chestsplusplus.services.data.PersistableService
 import com.jamesdpeters.chestsplusplus.util.CompoundClassLoader
+import me.gleeming.command.CommandHandler
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Tag
@@ -24,30 +25,35 @@ class ChestsPlusPlus : JavaPlugin() {
 
         var itemTags: Iterable<Tag<Material>>? = null
         var blockTags: Iterable<Tag<Material>>? = null
+
     }
 
     override fun onEnable() {
         // Plugin startup logic
         val compoundClassLoader = CompoundClassLoader(classLoader, Thread.currentThread().contextClassLoader)
 
-        scheduleTask(1) {
-            app = AnnotationConfigApplicationContext()
-            app?.classLoader = compoundClassLoader
-            app?.register(ApplicationConfig::class.java)
-            app?.refresh()
+        CommandHandler.setPlugin(this)
 
-            Log.debug { "Debugging enabled!" }
+        app = AnnotationConfigApplicationContext()
+        app?.classLoader = compoundClassLoader
+        app?.register(ApplicationConfig::class.java)
+        app?.refresh()
 
-            app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
-                Log.debug { "Loading service: $s" }
-                persistableService.reload()
-            }
+        Log.debug { "Debugging enabled!" }
 
-            itemTags = server.getTags(Tag.REGISTRY_ITEMS, Material::class.java)
-            blockTags = server.getTags(Tag.REGISTRY_BLOCKS, Material::class.java)
-
-            Log.info { "Enabled ChestsPlusPlus" }
+        app?.getBeansOfType(PersistableService::class.java)?.forEach { (s, persistableService) ->
+            Log.debug { "Loading service: $s" }
+            persistableService.reload()
         }
+
+        itemTags = server.getTags(Tag.REGISTRY_ITEMS, Material::class.java)
+        blockTags = server.getTags(Tag.REGISTRY_BLOCKS, Material::class.java)
+
+        Log.info { "Enabled ChestsPlusPlus" }
+    }
+
+    override fun onLoad() {
+        super.onLoad()
     }
 
     override fun onDisable() {

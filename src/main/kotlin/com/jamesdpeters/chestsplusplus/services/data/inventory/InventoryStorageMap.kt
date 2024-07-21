@@ -1,12 +1,8 @@
 package com.jamesdpeters.chestsplusplus.services.data.inventory
 
-import com.google.common.collect.BiMap
 import com.google.common.collect.HashBasedTable
-import com.google.common.collect.HashBiMap
-import com.google.common.collect.Table
 import com.jamesdpeters.chestsplusplus.storage.serializable.InventoryStore
-import org.springframework.util.MultiValueMap
-import java.util.UUID
+import java.util.*
 
 typealias OwnerUUID = UUID
 typealias InventoryUUID = UUID

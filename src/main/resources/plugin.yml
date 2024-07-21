@@ -2,7 +2,7 @@ name: ChestsPlusPlus
 version: '${project.version}'
 main: com.jamesdpeters.chestsplusplus.ChestsPlusPlus
 api-version: 1.20
-load: STARTUP
+load: POSTWORLD
 softdepend: [Parties]
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:${kotlin.version}
@@ -11,3 +11,17 @@ libraries:
   - org.springframework:spring-core:${spring.version}
   - javax.annotation:javax.annotation-api:${javax.annotation.version}
   - org.reflections:reflections:${reflections.version}
+
+permissions:
+  chestlink.add:
+    default: true
+    description: Gives permission to add ChestLinks!
+  chestlink.open:
+    default: true
+    description: Gives permission to open other people's ChestLinks!
+  chestlink.menu:
+    default: true
+    description: Gives permission to open ChestLinks menu!
+  chestlink.setpublic:
+    default: true
+    description: Gives permission to set ChestLinks public!

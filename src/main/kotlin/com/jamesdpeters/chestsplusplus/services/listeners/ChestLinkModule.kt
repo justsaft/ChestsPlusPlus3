@@ -1,6 +1,7 @@
 package com.jamesdpeters.chestsplusplus.services.listeners
 
 import com.jamesdpeters.chestsplusplus.*
+import com.jamesdpeters.chestsplusplus.menus.ChestLinkMenu
 import com.jamesdpeters.chestsplusplus.services.config.ConfigOptions
 import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
 import com.jamesdpeters.chestsplusplus.services.data.inventory.InventoryStorageService
@@ -15,6 +16,7 @@ import org.bukkit.block.data.type.Chest
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
@@ -26,6 +28,7 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
@@ -37,7 +40,8 @@ class ChestLinkModule(
     private val inventoryStorageService: InventoryStorageService,
     private val chunkStorageService: ChunkStorageService,
     private val itemFrameKey: NamespacedKey,
-    private val configOptions: ConfigOptions
+    private val configOptions: ConfigOptions,
+    private val chestLinkMenu: ChestLinkMenu
 ) : SpringBukkitListener() {
 
     override fun onEnable() {
@@ -49,9 +53,9 @@ class ChestLinkModule(
 
     // ? Chest Link Inventory Events
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun chestOpen(event: PlayerInteractEvent) {
-        if (event.player.isSneaking || event.action != Action.RIGHT_CLICK_BLOCK)
+        if ((event.player.isSneaking && event.item != null) || event.action != Action.RIGHT_CLICK_BLOCK || event.useItemInHand() == Event.Result.DENY || event.hand == EquipmentSlot.OFF_HAND)
             return
 
         event.clickedBlock?.let { block ->
@@ -80,12 +84,13 @@ class ChestLinkModule(
 
     @EventHandler
     fun createChestLink(event: PlayerInteractEvent) {
-        if (event.player.isSneaking && event.action == Action.RIGHT_CLICK_BLOCK) {
+        if (event.action == Action.RIGHT_CLICK_BLOCK) {
             event.item?.let { item ->
                 item.itemMeta?.let { itemMeta ->
                     event.clickedBlock?.let { block ->
                         if (item.type == Material.NAME_TAG && block.isChestLink) {
                             chestLinkService.addChestLink(event.player, block.location, itemMeta.displayName)
+                            event.setUseInteractedBlock(Event.Result.DENY)
                         }
                     }
                 }
@@ -117,7 +122,7 @@ class ChestLinkModule(
 
                 event.chestLinkLocation.itemFrame = itemFrame
 
-                inventoryStorageService.inventoryStore(event.chestLinkLocation.inventoryUUID!!)?.apply {
+                inventoryStorageService.getInventoryStore(event.chestLinkLocation.inventoryUUID!!)?.apply {
                     calculateMostCommonItem()
                     event.chestLinkLocation.updateItemFrame(mostCommonItem)
                 }
@@ -176,7 +181,7 @@ class ChestLinkModule(
                 if (!it.isSneaking) {
                     // Get the UUID stored in the item frame's persistent data container
                     itemFrame.persistentDataContainer[itemFrameKey, PersistentDataType.STRING]?.toUUID?.let { uuid ->
-                        inventoryStorageService.inventoryStore(uuid)?.let { inv ->
+                        inventoryStorageService.getInventoryStore(uuid)?.let { inv ->
                                 chestLinkService.openChestInventory(it, inv)
                             }
                     }
@@ -197,10 +202,6 @@ class ChestLinkModule(
 
     @EventHandler
     fun itemFrameInteract(event: PlayerInteractEntityEvent) {
-        if (event.player.isSneaking) {
-            event.isCancelled = true
-            return
-        }
         event.rightClicked.itemFrame?.let { itemFrame ->
             if (itemFrame.persistentDataContainer.has(itemFrameKey, PersistentDataType.STRING)) {
                 itemFrame.attachedFaceLocation.let { location ->
@@ -252,6 +253,13 @@ class ChestLinkModule(
     fun HopperInventorySearchEvent.searchForChestLink() {
         inventoryStorageService.inventoryStoreAtLocation(searchBlock.location)?.let {
             inventory = it.inventory
+        }
+    }
+
+    @EventHandler
+    fun PlayerInteractEvent.enderChest() {
+        if (action == Action.RIGHT_CLICK_AIR && item?.type == Material.ENDER_CHEST) {
+            chestLinkMenu.menu.open(player)
         }
     }
 

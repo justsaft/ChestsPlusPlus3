@@ -125,6 +125,10 @@
             <id>alessiodp-repo</id>
             <url>https://repo.alessiodp.com/releases/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -186,12 +190,31 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.jeff_media</groupId>
             <artifactId>MorePersistentDataTypes</artifactId>
             <version>2.3.1</version>
             <scope>compile</scope>
         </dependency>
 
+        <!-- 1.3.0 Branch commit 746622a67a -->
+        <dependency>
+            <groupId>com.github.MinusKube</groupId>
+            <artifactId>SmartInvs</artifactId>
+            <version>746622a67a</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.gleeming.command</groupId>
+            <artifactId>spigot-command-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 </project>

@@ -4,6 +4,7 @@ import com.jamesdpeters.chestsplusplus.ChestsPlusPlus
 import com.jamesdpeters.chestsplusplus.mostCommonItem
 import com.jamesdpeters.chestsplusplus.serialize.ConfigSerialize
 import com.jamesdpeters.chestsplusplus.serialize.serializers.ArraySerializer
+import com.jamesdpeters.chestsplusplus.serialize.serializers.BooleanSerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.OfflinePlayerUUIDSerializer
 import com.jamesdpeters.chestsplusplus.serialize.serializers.UUIDSerializer
 import com.jamesdpeters.chestsplusplus.services.data.chunk.ChunkStorageService
@@ -38,6 +39,9 @@ class InventoryStore : SerializableObject, InventoryHolder {
     @ConfigSerialize(ArraySerializer::class)
     private var inventoryItems: Array<ItemStack?>? = null
 
+    @ConfigSerialize(BooleanSerializer::class)
+    var isPublic: Boolean? = null
+
     private lateinit var inventory: Inventory
 
     var mostCommonItem: ItemStack? = null
@@ -59,6 +63,7 @@ class InventoryStore : SerializableObject, InventoryHolder {
 
     private fun init() {
         if (inventoryItems == null) inventoryItems = arrayOfNulls(invSize)
+        if (isPublic == null) isPublic = false
         inventory = Bukkit.createInventory(this, invSize, name)
         inventoryItems?.let {
             inventory.contents = it
@@ -95,5 +100,10 @@ class InventoryStore : SerializableObject, InventoryHolder {
             }, 1)
         }
     }
+
+    override fun toString(): String {
+        return "InventoryStore(uuid=$uuid, name='$name', owner=$owner, isPublic=$isPublic, mostCommonItem=$mostCommonItem)"
+    }
+
 
 }

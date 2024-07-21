@@ -8,6 +8,7 @@ import org.bukkit.block.*
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
 import org.bukkit.block.data.type.Hopper
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Hanging
 import org.bukkit.entity.ItemFrame
@@ -153,3 +154,6 @@ fun ItemStack.isSimilarTag(itemStack: ItemStack): Boolean {
 fun ItemStack.findSimilarTag(itemStack: ItemStack): Tag<Material>? {
     return ChestsPlusPlus.itemTags?.find { it.areItemsTagged(itemStack, this) }
 }
+
+val CommandSender?.player: Player?
+    get() = if (this is Player) this else null
