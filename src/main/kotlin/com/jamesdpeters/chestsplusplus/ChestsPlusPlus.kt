@@ -10,17 +10,19 @@ import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
-class ChestsPlusPlus : JavaPlugin() {
+open class ChestsPlusPlus : JavaPlugin() {
 
     companion object {
         var app: AnnotationConfigApplicationContext? = null
+        var plugin: ChestsPlusPlus? = null
 
         fun <T> getBean(beanClass: Class<T>): T? = app?.getBean(beanClass)
 
-        fun plugin() = getPlugin(ChestsPlusPlus::class.java)
 
         fun scheduleTask(delay: Long, task: () -> Unit) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), task, delay)
+            plugin?.let {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(it, task, delay)
+            }
         }
 
         var itemTags: Iterable<Tag<Material>>? = null
@@ -33,6 +35,7 @@ class ChestsPlusPlus : JavaPlugin() {
         val compoundClassLoader = CompoundClassLoader(classLoader, Thread.currentThread().contextClassLoader)
 
         CommandHandler.setPlugin(this)
+        plugin = this
 
         app = AnnotationConfigApplicationContext()
         app?.classLoader = compoundClassLoader

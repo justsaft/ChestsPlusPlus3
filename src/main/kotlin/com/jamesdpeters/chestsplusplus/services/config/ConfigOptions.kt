@@ -12,8 +12,6 @@ open class ConfigOptions {
         lateinit var instance: ConfigOptions
             private set
 
-        operator fun invoke(): ConfigOptions = instance
-
         operator fun <T : Any> get(option: (ConfigOptions) -> Config.AbstractValue<T>): T = option.invoke(instance).invoke()
     }
 

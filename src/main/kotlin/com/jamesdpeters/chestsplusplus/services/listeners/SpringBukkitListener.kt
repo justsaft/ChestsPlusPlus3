@@ -16,7 +16,7 @@ abstract class SpringBukkitListener : Listener {
     @PostConstruct
     fun init() {
         if (isEnabled) {
-            pluginManager?.registerEvents(this, ChestsPlusPlus.plugin())
+            pluginManager?.registerEvents(this, ChestsPlusPlus.plugin!!)
             onEnable()
         }
     }

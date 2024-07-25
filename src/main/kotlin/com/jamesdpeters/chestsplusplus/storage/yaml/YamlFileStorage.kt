@@ -22,7 +22,7 @@ abstract class YamlFileStorage<T> {
 
     /** Private functions */
 
-    private fun storageDirectory() = File(ChestsPlusPlus.plugin().dataFolder, directory)
+    private fun storageDirectory() = File(ChestsPlusPlus.plugin!!.dataFolder, directory)
 
     fun storageDirectory(filename: String): File {
         val file = File(storageDirectory(), filename)

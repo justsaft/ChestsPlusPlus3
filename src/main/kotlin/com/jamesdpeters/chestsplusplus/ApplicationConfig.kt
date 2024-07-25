@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
 open class ApplicationConfig {
 
     @Bean
-    open fun plugin(): ChestsPlusPlus = JavaPlugin.getPlugin(ChestsPlusPlus::class.java)
+    open fun plugin(): ChestsPlusPlus = ChestsPlusPlus.plugin!!
 
     @Bean
     open fun server(plugin: ChestsPlusPlus): Server = plugin.server
@@ -45,15 +45,6 @@ open class ApplicationConfig {
     open fun inventoryManager(chestsPlusPlus: ChestsPlusPlus): InventoryManager = InventoryManager(chestsPlusPlus)
         .also { it.init() }
 
-    @Autowired
-    var processors: List<Processor<out Any>>? = null
 
-    @PostConstruct
-    fun init() {
-        Log.debug { "Loaded Command Processors: " }
-        processors?.forEach {
-            Log.debug { it.type.toGenericString() }
-        }
-    }
 
 }

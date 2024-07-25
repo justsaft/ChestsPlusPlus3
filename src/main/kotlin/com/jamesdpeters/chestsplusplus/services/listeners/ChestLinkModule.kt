@@ -192,7 +192,7 @@ class ChestLinkModule(
                     }
                     itemFrame.isGlowing = true
 
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), {
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin!!, {
                         itemFrame.isGlowing = false
                     }, 20*2)
                 }

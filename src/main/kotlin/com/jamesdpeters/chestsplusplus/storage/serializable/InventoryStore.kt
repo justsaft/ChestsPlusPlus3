@@ -91,7 +91,7 @@ class InventoryStore : SerializableObject, InventoryHolder {
     fun updateLocations(chunkStorageService: ChunkStorageService) {
         if (canUpdateLocations) {
             canUpdateLocations = false
-            Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin!!, {
                 calculateMostCommonItem()
                 chunkStorageService.getChestLinkLocations(uuid)?.forEach {
                     it.updateItemFrame(mostCommonItem)

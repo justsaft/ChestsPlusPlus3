@@ -22,11 +22,11 @@ class ChunkStorageService : PersistableService {
     private val chestLinkStorage = ChestLinkStorageMap()
     private val hopperStorage = HopperStorageMap()
 
-    private val chestLinkKey = NamespacedKey(ChestsPlusPlus.plugin(), "ChunkStorage")
+    private val chestLinkKey = NamespacedKey(ChestsPlusPlus.plugin!!, "ChunkStorage")
     private val chestLinkLocationType = ConfigurationSerializableDataType(ChestLinkLocation::class.java)
     private val chestLinkLocationCollectionType = DataType.asGenericCollection({ mutableListOf() }, chestLinkLocationType)
 
-    private val hopperFilterKey = NamespacedKey(ChestsPlusPlus.plugin(), "HopperStorage")
+    private val hopperFilterKey = NamespacedKey(ChestsPlusPlus.plugin!!, "HopperStorage")
     private val hopperFilterLocationType = ConfigurationSerializableDataType(HopperFilterLocation::class.java)
     private val hopperFilterLocationCollectionType = DataType.asGenericCollection({ mutableListOf()}, hopperFilterLocationType)
 

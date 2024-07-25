@@ -34,7 +34,7 @@ class ChestLinkLocation : SerializableObject {
     fun updateItemFrame(itemStack: ItemStack?) {
         if (itemFrame != null) {
             itemFrame!!.setItem(itemStack, false)
-            itemFrame?.isVisible = (itemStack == null || itemStack.type == Material.AIR) && ConfigOptions().useInvisibleItemFramesChestLink()
+            itemFrame?.isVisible = (itemStack == null || itemStack.type == Material.AIR) && ConfigOptions.instance.useInvisibleItemFramesChestLink()
         }
     }
 

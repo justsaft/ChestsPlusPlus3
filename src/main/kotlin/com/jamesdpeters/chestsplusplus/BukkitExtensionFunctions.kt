@@ -33,7 +33,7 @@ fun Location.containerAnimation(open: Boolean) {
         val container = block.state
         if (container is Lidded) {
             if (open) container.open()
-            else Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin(), container::close, 1)
+            else Bukkit.getScheduler().scheduleSyncDelayedTask(ChestsPlusPlus.plugin!!, container::close, 1)
         }
     }
 }
