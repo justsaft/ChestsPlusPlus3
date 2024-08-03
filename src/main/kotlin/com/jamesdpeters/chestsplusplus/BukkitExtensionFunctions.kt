@@ -7,6 +7,7 @@ import org.bukkit.Tag
 import org.bukkit.block.*
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
+import org.bukkit.block.Crafter
 import org.bukkit.block.data.type.Hopper
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Entity
@@ -76,6 +77,12 @@ val BlockData?.directional: Directional?
 
 val BlockData?.hopper: Hopper?
     get() = if (this is Hopper) this else null
+
+val Block?.crafter: Crafter?
+    get() {
+        val crafter = this?.state
+        return if (crafter is Crafter) crafter else null
+    }
 
 val Hanging.attachedFaceLocation: Location
     get() {

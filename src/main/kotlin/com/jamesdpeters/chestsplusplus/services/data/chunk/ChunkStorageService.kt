@@ -43,6 +43,10 @@ class ChunkStorageService : PersistableService {
         }
     }
 
+    override fun clear() {
+        chestLinkStorage.clear()
+    }
+
     fun persistChunk(chunk: Chunk) {
         getChestLinkLocations(chunk)?.toMutableList()?.let {
             chunk.persistentDataContainer[chestLinkKey, chestLinkLocationCollectionType] = it

@@ -31,6 +31,10 @@ open class InventoryStorageService(
         }
     }
 
+    override fun clear() {
+        inventoryStorage.clear()
+    }
+
     override val directory: String
         get() = "storage"
 
@@ -62,6 +66,7 @@ open class InventoryStorageService(
     private fun createInventory(player: OfflinePlayer, name: String): InventoryStore {
         return InventoryStore(player, name).also {
             inventoryStorage.add(it)
+            it.updateLocations(chunkStorageService)
         }
     }
 

@@ -3,6 +3,7 @@ package com.jamesdpeters.chestsplusplus.serialize
 import com.jamesdpeters.chestsplusplus.Log
 import com.jamesdpeters.chestsplusplus.serialize.serializers.DefaultSerializer
 import com.jamesdpeters.chestsplusplus.storage.serializable.SerializableObject
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.DependsOn
@@ -10,7 +11,6 @@ import org.springframework.core.GenericTypeResolver
 import org.springframework.core.ResolvableType
 import org.springframework.stereotype.Component
 import java.lang.reflect.Field
-import java.util.*
 
 @DependsOn("config")
 @Component
@@ -52,6 +52,7 @@ class SerializeFieldCache(private val context: ApplicationContext) {
         }
 
         cache[clazz] = map
+        ConfigurationSerialization.registerClass(clazz)
         Log.debug {"Registered class ${clazz.canonicalName} for serialization" }
     }
 
@@ -112,6 +113,7 @@ class SerializeFieldCache(private val context: ApplicationContext) {
         }
     }
 
+    @JvmSuppressWildcards
     private fun <T, C> getGenericBean(parent: Class<T>, child: Class<C>): T {
         val resolvableType = ResolvableType.forClassWithGenerics(parent, child)
         val beanNames = context.getBeanNamesForType(resolvableType)
@@ -121,7 +123,7 @@ class SerializeFieldCache(private val context: ApplicationContext) {
         } else {
             val constructor = parent.getDeclaredConstructor(child.javaClass)
             val instance = constructor.newInstance(child)
-            context.autowireCapableBeanFactory.initializeBean(instance, parent.name + "<" + child.name + ">")
+            context.autowireCapableBeanFactory.initializeBean(instance as Any, parent.name + "<" + child.name + ">")
             instance
         }
     }
