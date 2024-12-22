@@ -1,5 +1,6 @@
 # User-specific stuff
 .idea/
+.vscode/
 
 *.iml
 *.ipr
@@ -96,6 +97,8 @@ $RECYCLE.BIN/
 *.lnk
 
 target/
+.gradle/
+.kotlin/
 
 pom.xml.tag
 pom.xml.releaseBackup

@@ -7,10 +7,14 @@ import org.jetbrains.kotlin.ir.backend.js.compile
  */
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.freefair.lombok") version "8.6"
     `java-library`
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 lombok {
@@ -19,6 +23,7 @@ lombok {
 
 repositories {
     mavenLocal()
+    /* mavenCentral() */
     maven {
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
@@ -27,9 +32,9 @@ repositories {
         url = uri("https://oss.sonatype.org/content/groups/public/")
     }
 
-    maven {
+    /* maven {
         url = uri("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
-    }
+    } */
 
     maven {
         url = uri("https://repo.codemc.io/repository/maven-snapshots/")
@@ -65,7 +70,9 @@ configurations {
 dependencies {
     compileOnly(libs.org.jetbrains.annotations)
 
-    api(libs.com.jeff.media.morepersistentdatatypes)
+    /* api(libs.com.jeff_media.morepersistentdatatypes) */
+    implementation("com.jeff-media:MorePersistentDataTypes:2.4.0")
+
     api(libs.com.github.minuskube.smartinvs)
     api(libs.spigot.command.api)
 
